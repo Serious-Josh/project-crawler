@@ -8,10 +8,9 @@
 
 using namespace std;
 
-//element enum type
+//element type enum
 enum class element {Fire, Ice, Earth, Forest, Wind, Normal};
 
-//function to return string corresponding to element enum
 string element_to_string(element type){
     switch (type){
         case element::Fire: return "Fire";
@@ -26,6 +25,76 @@ string element_to_string(element type){
             break;
         case element::Normal: return "Normal";
             break;      
+    }
+}
+
+//weapon type enum
+enum class weaponType {Sword, Dagger, Spear, Axe, Bow};
+
+string weapon_to_string(weaponType type){
+    switch(type){
+        case weaponType::Sword: return "Sword";
+            break;
+        case weaponType::Dagger: return "Dagger";
+            break;
+        case weaponType::Spear: return "Spear";
+            break;
+        case weaponType::Axe: return "Axe";
+            break;
+        case weaponType::Bow: return "Bow";
+            break;
+    }
+}
+
+//material type enum
+enum class material {Iron, Chainmail, Leather, Cloth};
+
+string material_to_string(material type){
+    switch(type){
+        case material::Iron: return "Iron";
+            break;
+        case material::Chainmail: return "Chainmail";
+            break;
+        case material::Leather: return "Leather";
+            break;
+        case material::Cloth: return "Cloth";
+            break;
+    }
+}
+
+//armor type enum
+enum class armorType {Helmet, Breastplate, Gauntlet, Boots};
+
+string armor_to_string(armorType type){
+    switch(type){
+        case armorType::Helmet: return "Helmet";
+            break;
+        case armorType::Breastplate: return "Breastplate";
+            break;
+        case armorType::Gauntlet: return "Gauntlet";
+            break;
+        case armorType::Boots: return "Boots";
+            break;
+    }
+}
+
+//accessory type enum
+enum class aType{HP, MP, Str, Mag, End, Spd};
+
+string aType_to_string(aType type){
+    switch(type){
+        case aType::HP: return "HP";// +10% hp
+            break;
+        case aType::MP: return "MP";// +10% mp
+            break;
+        case aType::Str: return "Str";// +5 str
+            break;
+        case aType::Mag: return "Mag";// +5 mag
+            break;
+        case aType::End: return "End";// +5 end
+            break;
+        case aType::Spd: return "Spd";// +5 spd
+            break;
     }
 }
 
@@ -51,16 +120,20 @@ class equipment{
             return weight;
         }
 
+        void setWeight(int weight){
+            this->weight = weight;
+        }
+
         string getName(){
             return name;
         }
 
-        int getValue(){
-            return value;
-        }
-
         void setName(string name){
             this->name = name;
+        }
+
+        int getValue(){
+            return value;
         }
 
         void setValue(int val){
@@ -70,26 +143,9 @@ class equipment{
         //placeholder for future setter methods
         //I don't think they're neccesary now, but they could be later on
 
-        virtual string outputInfo() = 0;
+        virtual void generateInformation() = 0;
 
 };
-
-enum class weaponType {Sword, Dagger, Spear, Axe, Bow};
-
-string weapon_to_string(weaponType type){
-    switch(type){
-        case weaponType::Sword: return "Sword";
-            break;
-        case weaponType::Dagger: return "Dagger";
-            break;
-        case weaponType::Spear: return "Spear";
-            break;
-        case weaponType::Axe: return "Axe";
-            break;
-        case weaponType::Bow: return "Bow";
-            break;
-    }
-}
 
 int baseDmgCalc(weaponType type, int modifier, int shopScaler, element el){
 
@@ -171,24 +227,20 @@ class weapon : public equipment {
                 el = element::Normal;
             }
 
-        //extremely lazy and shitty way of generating dmgMod
-            if((rand() % 101) == 1){
-                dmgMod = 5;
-            }
-            else if((rand() % 101) == 2){
-                dmgMod = 4;
-            }
-            else if((rand() % 101) == 3){
-                dmgMod = 3;
-            }
-            else if((rand() % 101) == 4 || 5){
-                dmgMod = 2;
-            }
-            else if ((rand() % 101) == 6 || 7){
-                dmgMod = 1;
-            }
-            else{
-                dmgMod = 0;
+        //pretty lazy way of generating dmgMod
+            switch(int temp = rand() % 100 + 1){
+                case 1: dmgMod = 5;
+                    break;
+                case 2: dmgMod = 4;
+                    break;
+                case 3: dmgMod = 3;
+                    break;
+                case 4: case 5: dmgMod = 2;
+                    break;
+                case 6: case 7: dmgMod = 1;
+                    break;
+                default: dmgMod = 0;
+                    break;
             }
 
         //assinging weapon type and damage
@@ -210,6 +262,7 @@ class weapon : public equipment {
                     break;
             }
 
+            generateInformation();
         }
 
     //generating base information (name, value, weight)
@@ -237,5 +290,157 @@ class weapon : public equipment {
                 setName(weapon_to_string(type));
                 setValue(dmg * 0.75);
             }
+        }
+        
+        int getDamage(){
+            return dmg;
+        }
+
+        weaponType getType(){
+            return type;
+        }
+
+        element getElement(){
+            return el;
+        }
+};
+
+class armor : public equipment {
+
+    private:
+
+    //going to investigate this tempArmor stat
+        int armorStat, tempArmor;
+        material mat;
+        armorType type;
+
+    public:
+        armor(string name = "Null", int weight = 0, int value = 1, double shopScaler = 1.0): equipment(name, weight, value, shopScaler){
+
+            int temp = (rand() % 100 + 1);
+        //armorStat generation
+            if(temp < 5){
+                armorStat = (rand() % 56 * shopScaler);
+            }
+            else if(6 <= temp <= 10){
+                armorStat = (rand() % 44 * shopScaler);
+            }
+            else if(11 <= temp <= 20){
+                armorStat = (rand() % 32 * shopScaler);
+            }
+            else{
+                armorStat = rand() % 20 * shopScaler;
+            }
+
+
+
+            generateInformation();
+        }
+
+        void generateInformation(){
+
+        //type generation
+            switch(rand() % 4 + 1){
+                case 1: type = armorType::Helmet;
+                    break;
+                case 2: type = armorType::Breastplate;
+                    break;
+                case 3: type = armorType::Gauntlet;
+                    break;
+                case 4: type = armorType::Boots;
+                    break;
+            }
+
+        //generating material and armor adjustement
+        //I think I want material to be an enum type like weapon element
+
+
+            switch(rand() % 4 + 1){
+               case 1: mat = material::Iron;
+                setArmor(getArmor() * 1.75);
+                setValue(getArmor() * 0.8 + 30);
+                    break;
+                case 2: mat = material::Chainmail;
+                setArmor(getArmor() * 1.5);
+                setValue(getArmor() * 0.8 + 20);
+                    break;
+                case 3: mat = material::Leather;
+                setArmor(getArmor() * 1.25);
+                setValue(getArmor() * 0.8 + 10);
+                    break;
+                case 4: mat = material::Cloth;
+                setValue(getArmor() * 0.8);
+                    break;
+            }
+
+            setName(material_to_string(mat) + " " + armor_to_string(type));
+            tempArmor = armorStat;
+        }
+
+        void setArmor(int armor){
+            armorStat = armor;
+        }
+
+        int getArmor(){
+            return armorStat;
+        }
+
+        void setTempArmor(int armor){
+            tempArmor = armor;
+        }
+
+        int getTempArmor(){
+            return tempArmor;
+        }
+
+        armorType getType(){
+            return type;
+        }
+
+        material getMaterial(){
+            return mat;
+        }
+};
+
+class accessory : public equipment {
+
+    private:
+        aType type;
+
+    public:
+        accessory(string name = "NULL", int weight = 0, int value = 1, double shopScaler = 1.0): equipment(name, weight, value, shopScaler){
+
+            generateInformation();
+
+        }
+
+        void generateInformation(){
+        //generating type/name/value
+        switch(rand() % 8 + 1){
+            case 1: case 2: type = aType::HP;
+                setName("Band of Health");
+                    break;
+            case 3: case 4: type = aType::MP;
+                setName("Band of Aether");
+                    break;
+            case 5: type = aType::Str;
+                setName("Ring of Power");
+                    break;
+            case 6: type = aType::Mag;
+                setName("Ring of Spirit");
+                    break;
+            case 7: type = aType::End;
+                setName("Ring of Vitality");
+                    break;
+            case 8: type = aType::Spd;
+                setName("Ringo of Quickness");
+                    break;
+        }
+
+            setValue(100);
+        }
+
+        aType getType(){
+            return type;
         }
 };
