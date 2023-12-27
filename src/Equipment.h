@@ -207,6 +207,11 @@ class weapon : public equipment {
 
             this->shopScaler = shopScaler;
 
+            if(name == "Fists"){
+                dmg = 1;
+                exit;
+            }
+
         //assinging whether the weapon has an element. 12% chance
             if((rand() % 101) <= 12){
 
@@ -400,6 +405,10 @@ class armor : public equipment {
         material getMaterial(){
             return mat;
         }
+
+        string outputInfo(){
+            return to_string(getArmor());
+        }
 };
 
 class accessory : public equipment {
@@ -442,5 +451,9 @@ class accessory : public equipment {
 
         aType getType(){
             return type;
+        }
+
+        string outputInfo(){
+            return aType_to_string(type);
         }
 };
